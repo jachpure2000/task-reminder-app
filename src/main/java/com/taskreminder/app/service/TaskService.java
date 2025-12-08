@@ -1,32 +1,40 @@
 package com.taskreminder.app.service;
 
 import com.taskreminder.app.entity.Task;
+import com.taskreminder.app.repository.TaskRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskService {
-    private final List<Task> tasks = new ArrayList<>();
-    private static int counter = 100;
 
-    public TaskService() {
-        tasks.add(new Task(1, "Learn Spring Boot", "Basics of project", "2025-12-05", "Pending", "High", LocalDateTime.now()));
-        tasks.add(new Task(2, "Practice Java", "Collections & OOP", "2025-12-06", "Pending", "Medium", LocalDateTime.now()));
-    }
+        @Autowired
+        private TaskRepository taskRepository;
 
-    public List<Task> getAllTasks() {
-        return tasks;
-    }
+        public List<Task> getAllTasks() {
+            return taskRepository.findAll();
+        }
 
-    public void addTask(Task task) {
-        tasks.add(task);
-    }
+        public Task addTask(Task task) {
+            return taskRepository.save(task);
+        }
 
-    public static int nextId() {
-        return counter++;
-    }
+        public Task updateTask(Task task) {
+            return taskRepository.save(task);
+        }
+
+        public void deleteTask(Integer id) {
+            taskRepository.deleteById(id);
+        }
+
+        public Optional<Task> findById(Integer id) {
+            return taskRepository.findById(id);
+        }
 
 }

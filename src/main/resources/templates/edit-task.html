@@ -1,52 +1,44 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Add Task</title>
+    <meta charset="UTF-8"/>
+    <title>Edit Task</title>
 </head>
 <body>
-
-<h2>Add New Task</h2>
-
 <p>
     <a href="/api/tasks">Task List</a> |
     <a href="/api/tasks/add">Add Task</a>
 </p>
 
-
+<h2>Edit Task</h2>
 <div th:if="${errorMessage}" style="color:red; margin-bottom: 10px;">
     <p th:text="${errorMessage}"></p>
 </div>
-
-<form th:action="@{/api/tasks/add}" th:object="${task}" method="post">
-
+<form th:action="@{|/api/tasks/edit/${task.id}|}" th:object="${task}" method="post">
     <label>Title:</label>
-    <input type="text" th:field="*{title}" required/>
-    <br/><br/>
+    <input type="text" th:field="*{title}" required/><br/><br/>
 
     <label>Description:</label>
-    <textarea th:field="*{description}"></textarea>
-    <br/><br/>
+    <textarea th:field="*{description}"></textarea><br/><br/>
 
     <label>Due Date:</label>
-    <input type="date" th:field="*{dueDate}" required/>
-    <br/><br/>
+    <input type="date" th:field="*{dueDate}" required/><br/><br/>
 
     <label>Status:</label>
     <select th:field="*{status}">
         <option value="Pending">Pending</option>
         <option value="Done">Done</option>
-    </select>
-    <br/><br/>
+    </select><br/><br/>
 
     <label>Priority:</label>
     <select th:field="*{priority}">
         <option value="Low">Low</option>
         <option value="Medium">Medium</option>
         <option value="High">High</option>
-    </select>
-    <br/><br/>
+    </select><br/><br/>
 
-    <button type="submit">Save Task</button>
+    <button type="submit">Update Task</button>
+    <a th:href="@{/api/tasks}">Cancel</a>
 </form>
 
 </body>

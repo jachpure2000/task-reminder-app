@@ -5,10 +5,7 @@ import com.taskreminder.app.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -33,12 +30,69 @@ public class TaskController {
     }
 
     @PostMapping("/add")
-    public String saveTask(@ModelAttribute Task task) {
-        task.setId(TaskService.nextId());
+    public String saveTask(@ModelAttribute Task task, Model model) {
+
+        if (task.getTitle() == null || task.getTitle().trim().isEmpty()) {
+            model.addAttribute("errorMessage", "Title is required!");
+            model.addAttribute("task", task);
+            return "add-task";
+        }
+
+        if (task.getDueDate() == null || task.getDueDate().trim().isEmpty()) {
+            model.addAttribute("errorMessage", "Due Date is required!");
+            model.addAttribute("task", task);
+            return "add-task";
+        }
         task.setCreatedAt(LocalDateTime.now());
         taskService.addTask(task);
         return "redirect:/api/tasks";
     }
 
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Integer id, Model model) {
+        Task task = taskService.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+        model.addAttribute("task", task);
+        return "edit-task";
+    }
+
+
+    @PostMapping("/edit/{id}")
+    public String updateTask(@PathVariable Integer id, @ModelAttribute Task task, Model model) {
+        Task existing = taskService.findById(id)
+                .orElse(null);
+
+        if (existing == null) {
+            model.addAttribute("errorMessage", "Task not found!");
+            return "edit-task";
+        }
+        if (task.getTitle() == null || task.getTitle().trim().isEmpty()) {
+            model.addAttribute("errorMessage", "Title is required!");
+            return "edit-task";
+        }
+
+        task.setId(id);
+        task.setCreatedAt(existing.getCreatedAt());
+
+        taskService.updateTask(task);
+        return "redirect:/api/tasks";
+    }
+
+
+    @GetMapping("/delete/{id}")
+    public String deleteTask(@PathVariable Integer id, Model model) {
+
+        if (!taskService.findById(id).isPresent()) {
+            model.addAttribute("errorMessage", "Task not found!");
+            return "tasks";
+        }
+        taskService.deleteTask(id);
+        return "redirect:/api/tasks";
+    }
+
+
 
 }
+
+
+

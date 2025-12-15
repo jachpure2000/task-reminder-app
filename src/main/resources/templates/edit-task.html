@@ -3,43 +3,76 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Edit Task</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
 </head>
 <body>
-<p>
-    <a href="/api/tasks">Task List</a> |
-    <a href="/api/tasks/add">Add Task</a>
-</p>
-
-<h2>Edit Task</h2>
-<div th:if="${errorMessage}" style="color:red; margin-bottom: 10px;">
-    <p th:text="${errorMessage}"></p>
+<div class="header">
+    <div class="brand">Task Reminder App</div>
+    <div class="nav">
+        <a href="/api/tasks" class="btn">Task List</a>
+        <a href="/api/tasks/add" class="btn">Add Task</a>
+    </div>
 </div>
-<form th:action="@{|/api/tasks/edit/${task.id}|}" th:object="${task}" method="post">
-    <label>Title:</label>
-    <input type="text" th:field="*{title}" required/><br/><br/>
 
-    <label>Description:</label>
-    <textarea th:field="*{description}"></textarea><br/><br/>
+<div class="container">
+    <div th:if="${successMessage}" class="flash flash-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="flash flash-error" th:text="${errorMessage}"></div>
 
-    <label>Due Date:</label>
-    <input type="date" th:field="*{dueDate}" required/><br/><br/>
+    <h2>Edit Task</h2>
 
-    <label>Status:</label>
-    <select th:field="*{status}">
-        <option value="Pending">Pending</option>
-        <option value="Done">Done</option>
-    </select><br/><br/>
+    <form th:action="@{|/api/tasks/edit/${task.id}|}" th:object="${task}" method="post">
 
-    <label>Priority:</label>
-    <select th:field="*{priority}">
-        <option value="Low">Low</option>
-        <option value="Medium">Medium</option>
-        <option value="High">High</option>
-    </select><br/><br/>
+        <div class="form-row">
+            <label>Title:</label>
+            <input type="text" th:field="*{title}" required minlength="3" maxlength="100"/>
+        </div>
 
-    <button type="submit">Update Task</button>
-    <a th:href="@{/api/tasks}">Cancel</a>
-</form>
+        <div class="form-row">
+            <label>Description:</label>
+            <textarea th:field="*{description}" maxlength="500"></textarea>
+        </div>
 
+        <div class="form-row">
+            <label>Due Date:</label>
+            <input type="date"
+                   th:field="*{dueDate}"
+                   required
+                   th:attr="min=${#dates.format(#dates.createNow(),'yyyy-MM-dd')}" />
+        </div>
+
+        <div class="form-row">
+            <label>Status:</label>
+            <select th:field="*{status}">
+                <option value="">-- Select --</option>
+                <option th:each="s : ${T(com.taskreminder.app.enums.TaskStatus).values()}"
+                        th:value="${s}"
+                        th:text="${s}">
+                </option>
+            </select>
+        </div>
+
+
+        <div class="form-row">
+            <label>Priority:</label>
+            <select th:field="*{priority}" required>
+                <option value="">-- Select --</option>
+                <option th:each="p : ${T(com.taskreminder.app.enums.TaskPriority).values()}"
+                        th:value="${p}"
+                        th:text="${p}">
+                </option>
+            </select>
+        </div>
+
+        <div style="margin-top:12px;">
+            <button type="submit" class="btn btn-primary">Update Task</button>
+            <a href="/api/tasks" class="btn">Cancel</a>
+            <input type="reset" class="btn" value="Reset"/>
+        </div>
+    </form>
+</div>
+
+<footer class="footer">
+    <div>Task Reminder App © 2025 — Created by Student</div>
+</footer>
 </body>
 </html>

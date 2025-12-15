@@ -1,12 +1,13 @@
 package com.taskreminder.app.entity;
 
 
+import com.taskreminder.app.enums.TaskPriority;
+import com.taskreminder.app.enums.TaskStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-//@Table(name = "tasks")
 public class Task {
 
     @Id
@@ -16,14 +17,16 @@ public class Task {
     private String title;
     private String description;
     private String dueDate;
-    private String status;
-    private String priority;
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status;
+    @Enumerated(EnumType.STRING)
+    private TaskPriority priority;
     private LocalDateTime createdAt;
 
     public Task() { }
 
-    public Task(Integer id, String title, String description, String dueDate, String status, String priority, LocalDateTime createdAt) {
-        this.id = id;
+
+    public Task(String title, String description, String dueDate, TaskStatus status, TaskPriority priority, LocalDateTime createdAt) {
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
@@ -31,7 +34,6 @@ public class Task {
         this.priority = priority;
         this.createdAt = createdAt;
     }
-
 
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
@@ -45,11 +47,21 @@ public class Task {
     public String getDueDate() { return dueDate; }
     public void setDueDate(String dueDate) { this.dueDate = dueDate; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public TaskStatus getStatus() {
+        return status;
+    }
 
-    public String getPriority() { return priority; }
-    public void setPriority(String priority) { this.priority = priority; }
+    public void setStatus(TaskStatus status) {
+        this.status = status;
+    }
+
+    public TaskPriority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(TaskPriority priority) {
+        this.priority = priority;
+    }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

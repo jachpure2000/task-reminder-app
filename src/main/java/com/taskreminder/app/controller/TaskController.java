@@ -1,25 +1,47 @@
 package com.taskreminder.app.controller;
 
 import com.taskreminder.app.entity.Task;
+import com.taskreminder.app.enums.TaskStatus;
 import com.taskreminder.app.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/api/tasks")
 public class TaskController {
 
-
     @Autowired
     private TaskService taskService;
 
     @GetMapping
-    public String listTasks(Model model) {
-        model.addAttribute("tasks", taskService.getAllTasks());
+    public String listTasks(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String priority,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String sort,
+            Model model) {
+
+        List<Task> tasks=null;
+
+        if (status != null && !status.isEmpty()) {
+            tasks = taskService.findByStatus(status);
+        } else if (priority != null && !priority.isEmpty()) {
+            tasks = taskService.findByPriority(priority);
+        } else if (keyword != null && !keyword.isEmpty()) {
+            tasks = taskService.searchByTitle(keyword);
+        } else if (sort != null && !sort.isEmpty()) {
+//            tasks = taskService.sortByField(sort);
+        } else {
+            tasks = taskService.getAllTasks();
+        }
+
+        model.addAttribute("tasks", tasks);
         return "tasks";
     }
 
@@ -30,7 +52,7 @@ public class TaskController {
     }
 
     @PostMapping("/add")
-    public String saveTask(@ModelAttribute Task task, Model model) {
+    public String saveTask(@ModelAttribute Task task, Model model, RedirectAttributes ra) {
 
         if (task.getTitle() == null || task.getTitle().trim().isEmpty()) {
             model.addAttribute("errorMessage", "Title is required!");
@@ -43,8 +65,12 @@ public class TaskController {
             model.addAttribute("task", task);
             return "add-task";
         }
+        if (task.getStatus() == null) {
+            task.setStatus(TaskStatus.PENDING);
+        }
         task.setCreatedAt(LocalDateTime.now());
         taskService.addTask(task);
+        ra.addFlashAttribute("successMessage", "Task added successfully!");
         return "redirect:/api/tasks";
     }
 
@@ -55,7 +81,6 @@ public class TaskController {
         model.addAttribute("task", task);
         return "edit-task";
     }
-
 
     @PostMapping("/edit/{id}")
     public String updateTask(@PathVariable Integer id, @ModelAttribute Task task, Model model) {
@@ -78,7 +103,6 @@ public class TaskController {
         return "redirect:/api/tasks";
     }
 
-
     @GetMapping("/delete/{id}")
     public String deleteTask(@PathVariable Integer id, Model model) {
 
@@ -90,9 +114,14 @@ public class TaskController {
         return "redirect:/api/tasks";
     }
 
-
-
+    @GetMapping("/markdone/{id}")
+    public String markAsDone(@PathVariable Integer id) {
+        Task task = taskService.findById(id).orElse(null);
+        if (task != null && task.getStatus()!= TaskStatus.DONE) {
+//            task.setStatus("Done");
+            task.setStatus(TaskStatus.DONE);
+            taskService.updateTask(task);
+        }
+        return "redirect:/api/tasks";
+    }
 }
-
-
-

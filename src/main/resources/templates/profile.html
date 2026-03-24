@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Profile</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+
+  <h2>Your Profile</h2>
+
+  <div th:if="${successMessage}" class="flash flash-success" th:text="${successMessage}"></div>
+
+  <!-- Profile Image -->
+  <div style="text-align:center; margin-bottom:20px;">
+    <img th:if="${user.profileImage != null}"
+         th:src="@{'/profile/image/' + ${user.profileImage}}"
+         alt="Profile Picture"
+         style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #ccc;">
+
+    <img th:if="${user.profileImage == null}"
+         src="/images/default-user.png"
+         alt="Default Image"
+         style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #ccc;">
+  </div>
+
+  <p><strong>Name:</strong> <span th:text="${user.name}"></span></p>
+  <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+
+  <a href="/profile/edit" class="btn btn-primary">Edit Profile</a>
+
+</div>
+
+<footer class="footer">
+  <div>Task Reminder App © 2025 — Created by Student</div>
+</footer>
+
+</body>
+</html>

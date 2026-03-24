@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="header" th:fragment="header">
+
+    <div class="brand">Task Reminder App</div>
+
+    <div class="nav">
+
+        <!-- When user is logged in -->
+        <span th:if="${session.userId != null}">
+
+            <span class="welcome">
+                Welcome, <b th:text="${session.userName}">User</b>!
+            </span>
+
+            <!-- Live Clock -->
+            <span id="liveClock" class="clock">--:--:--</span>
+
+            <a href="/profile" class="btn small">Profile</a>
+            <a href="/dashboard" class="btn">Dashboard</a>
+            <a href="/api/tasks/add" class="btn btn-primary">Add Task</a>
+
+            <!-- Profile Image -->
+            <img th:if="${session.profileImage != null}"
+                 th:src="@{'/profile/image/' + ${session.profileImage}}"
+                 class="profile-pic">
+
+            <!-- Default profile icon -->
+            <img th:if="${session.profileImage == null}"
+                 src="/images/default-user.png"
+                 class="profile-pic">
+
+            <a href="/logout" class="btn">Logout</a>
+        </span>
+
+        <!-- When no user logged in -->
+        <span th:if="${session.userId == null}">
+            <a href="/login" class="btn">Login</a>
+            <a href="/register" class="btn btn-primary">Register</a>
+        </span>
+    </div>
+</div>
+
+</body>
+</html>

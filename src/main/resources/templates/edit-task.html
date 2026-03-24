@@ -6,13 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}"/>
 </head>
 <body>
-<div class="header">
-    <div class="brand">Task Reminder App</div>
-    <div class="nav">
-        <a href="/api/tasks" class="btn">Task List</a>
-        <a href="/api/tasks/add" class="btn">Add Task</a>
-    </div>
-</div>
+<div th:replace="fragments/header :: header"></div>
 
 <div class="container">
     <div th:if="${successMessage}" class="flash flash-success" th:text="${successMessage}"></div>

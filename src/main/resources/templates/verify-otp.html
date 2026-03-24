@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Verify OTP</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+
+<div class="container small-box">
+
+    <h2>Email Verification</h2>
+
+    <div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
+    <div th:if="${error}" class="flash flash-error" th:text="${error}"></div>
+
+    <form th:action="@{/verify}" th:object="${otpRequest}" method="post">
+
+        <label>Email</label>
+        <input type="email" th:field="*{email}" required>
+
+        <label>OTP</label>
+        <input type="text" th:field="*{otp}" required minlength="4" maxlength="4">
+
+        <button type="submit" class="btn btn-primary">Verify OTP</button>
+    </form>
+
+</div>
+
+</body>
+</html>

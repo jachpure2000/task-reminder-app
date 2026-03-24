@@ -1,13 +1,19 @@
 package com.taskreminder.app.controller;
 
+import com.taskreminder.app.dto.OtpRequest;
 import com.taskreminder.app.entity.Task;
+import com.taskreminder.app.entity.User;
+import com.taskreminder.app.enums.TaskPriority;
+import com.taskreminder.app.enums.TaskStatus;
 import com.taskreminder.app.service.TaskService;
+import com.taskreminder.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +25,8 @@ public class TaskRestController {
 
     @Autowired
     private final TaskService taskService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     public TaskRestController(TaskService taskService) {
@@ -44,12 +52,12 @@ public class TaskRestController {
         //return t.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<Task> create(@RequestBody Task task) {
-        task.setCreatedAt(LocalDateTime.now());
-        Task saved = taskService.addTask(task);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-    }
+//    @PostMapping("/add")
+//    public ResponseEntity<Task> create(@RequestBody Task task) {
+//        task.setCreatedAt(LocalDateTime.now());
+//        Task saved = taskService.addTask(task);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+//    }
 
 
     @PutMapping("/{id}")
@@ -73,25 +81,61 @@ public class TaskRestController {
     }
 
 
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Task>> getByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(taskService.findByStatus(status));
-    }
-
-    @GetMapping("/priority/{priority}")
-    public ResponseEntity<List<Task>> getByPriority(@PathVariable String priority) {
-        return ResponseEntity.ok(taskService.findByPriority(priority));
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<Task>> searchByTitle(@RequestParam("keyword") String keyword) {
-        return ResponseEntity.ok(taskService.searchByTitle(keyword));
-    }
+//    @GetMapping("/status/{status}")
+//    public ResponseEntity<List<Task>> getByStatus(@PathVariable TaskStatus status) {
+//        return ResponseEntity.ok(taskService.findByStatus(status));
+//    }
+//
+//    @GetMapping("/priority/{priority}")
+//    public ResponseEntity<List<Task>> getByPriority(@PathVariable TaskPriority priority) {
+//        return ResponseEntity.ok(taskService.findByPriority(priority));
+//    }
+//
+//    @GetMapping("/search")
+//    public ResponseEntity<List<Task>> searchByTitle(@RequestParam("keyword") String keyword) {
+//        return ResponseEntity.ok(taskService.searchByTitle(keyword));
+//    }
 
     // GET /api/v1/tasks/due?date=YYYY-MM-DD
     @GetMapping("/due")
     public ResponseEntity<List<Task>> getByDueDate(@RequestParam("date") String date) {
         return ResponseEntity.ok(taskService.findByDueDate(date));
     }
+
+    @GetMapping("/due-today")
+    public ResponseEntity<List<Task>> getTasksDueToday() {
+        return ResponseEntity.ok(taskService.getTasksDueToday());
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Task>> getUpcomingTasks(
+            @RequestParam(defaultValue = "3") int days) {
+
+        return ResponseEntity.ok(taskService.getUpcomingTasks(days));
+    }
+
+    @GetMapping("/overdue")
+    public ResponseEntity<List<Task>> getOverdueTasks() {
+        return ResponseEntity.ok(taskService.getOverdueTasks());
+    }
+
+    @PostMapping("/userRegister")
+    public ResponseEntity<?> registerApi(@RequestBody User user) {
+
+        try {
+            userService.register(user);
+            return ResponseEntity.ok("OTP sent to your email");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @PostMapping("/verify")
+    public ResponseEntity<?> verify(@RequestBody OtpRequest request) {
+
+        String response = userService.verifyOtp(request.getEmail(), request.getOtp());
+
+        return ResponseEntity.ok(response);
+    }
+
 }
 

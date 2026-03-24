@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+
+<div class="container small-box">
+
+    <h2>Create Account</h2>
+
+    <div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
+    <div th:if="${error}" class="flash flash-error" th:text="${error}"></div>
+
+    <form th:action="@{/register}" th:object="${user}" method="post">
+
+        <label>Name</label>
+        <input type="text" th:field="*{name}" required>
+
+        <label>Email</label>
+        <input type="email" th:field="*{email}" required>
+
+        <label>Password</label>
+        <input type="password" th:field="*{password}" required>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+        <p>Already registered? <a href="/login">Login</a></p>
+    </form>
+
+</div>
+
+</body>
+</html>

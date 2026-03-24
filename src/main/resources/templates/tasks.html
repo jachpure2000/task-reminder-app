@@ -6,52 +6,49 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}"/>
 </head>
 <body>
-<div class="header">
-    <div class="brand">Task Reminder App</div>
-    <div class="nav">
-        <a href="/api/tasks" class="btn">Task List</a>
-        <a href="/api/tasks/add" class="btn btn-primary">Add Task</a>
-    </div>
-</div>
+
+
+<div th:replace="fragments/header :: header"></div>
 
 <div class="container">
+
+
     <div th:if="${successMessage}" class="flash flash-success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="flash flash-error" th:text="${errorMessage}"></div>
 
     <h2>All Tasks</h2>
 
     <form class="filters" action="/api/tasks" method="get">
+
         <label>Status:</label>
         <select name="status" class="filter-input">
-            <option value="" th:selected="${param.status == null or param.status == ''}">All</option>
-            <option value="Pending" th:selected="${param.status == 'Pending'}">Pending</option>
-            <option value="Done" th:selected="${param.status == 'Done'}">Done</option>
+            <option value="">All</option>
+            <option th:each="s : ${T(com.taskreminder.app.enums.TaskStatus).values()}"
+                    th:value="${s}"
+                    th:text="${#strings.capitalize(s.toString().toLowerCase())}"
+                    th:selected="${param.status == s}">
+            </option>
         </select>
 
         <label>Priority:</label>
         <select name="priority" class="filter-input">
-            <option value="" th:selected="${param.priority == null or param.priority == ''}">All</option>
-            <option value="High" th:selected="${param.priority == 'High'}">High</option>
-            <option value="Medium" th:selected="${param.priority == 'Medium'}">Medium</option>
-            <option value="Low" th:selected="${param.priority == 'Low'}">Low</option>
+            <option value="">All</option>
+            <option th:each="p : ${T(com.taskreminder.app.enums.TaskPriority).values()}"
+                    th:value="${p}"
+                    th:text="${#strings.capitalize(p.toString().toLowerCase())}"
+                    th:selected="${param.priority == p}">
+            </option>
         </select>
 
         <label>Search Title:</label>
-        <input type="text" name="keyword" placeholder="keyword" class="filter-input small"
-               th:value="${param.keyword}"/>
+        <input type="text" name="keyword" placeholder="keyword"
+               class="filter-input small" th:value="${param.keyword}"/>
 
-        <input type="hidden" name="sort" th:value="${param.sort}"/>
         <button type="submit" class="btn">Filter</button>
-        <a href="/api/tasks" class="btn small">Clear Filters</a>
+        <a href="/api/tasks" class="btn small">Clear</a>
 
-        <span style="margin-left:12px;" class="small">
-            Sort:
-            <a th:href="@{/api/tasks(sort='dueDate')}" class="small">Due Date</a> |
-            <a th:href="@{/api/tasks(sort='priority')}" class="small">Priority</a> |
-            <a th:href="@{/api/tasks(sort='title')}" class="small">Title</a>
-        </span>
     </form>
-
+    <a href="/api/tasks/export" class="btn small">Export CSV</a>
     <table>
         <thead>
         <tr>
@@ -62,44 +59,82 @@
             <th>Status</th>
             <th>Priority</th>
             <th>Created At</th>
+            <th>Completed At</th>
             <th>Actions</th>
         </tr>
         </thead>
+
         <tbody>
-        <tr th:each="task : ${tasks}"
-            th:classappend="${task.dueDate != null and task.dueDate lt #dates.format(#dates.createNow(), 'yyyy-MM-dd')} ? 'overdue'">
+
+        <!-- Loop Tasks (NO overdueMap, NO dueSoonMap) -->
+        <tr th:each="task : ${tasks}">
             <td th:text="${task.id}"></td>
             <td th:text="${task.title}"></td>
             <td th:text="${task.description}"></td>
+
             <td th:text="${task.dueDate}"></td>
 
+            <!-- Status Badge -->
             <td>
-                <span th:text="${task.status}"
-                      th:class="${task.status == 'Done'} ? 'status-done' : 'status-pending'"></span>
+                <span th:text="${#strings.capitalize(task.status.toString().toLowerCase())}"
+                      th:class="${task.status == T(com.taskreminder.app.enums.TaskStatus).DONE}
+                                ? 'status-done'
+                                : 'status-pending'">
+                </span>
             </td>
 
+            <!-- Priority Badge -->
             <td>
-                <span th:text="${task.priority}"
-                      th:classappend="${task.priority == 'High'} ? 'badge badge-high' : (task.priority == 'Medium' ? 'badge badge-medium' : 'badge badge-low')"></span>
+                <span th:text="${#strings.capitalize(task.priority.toString().toLowerCase())}"
+                      th:classappend="
+                          ${task.priority == T(com.taskreminder.app.enums.TaskPriority).HIGH}
+                              ? 'badge badge-high' :
+                          (${task.priority == T(com.taskreminder.app.enums.TaskPriority).MEDIUM}
+                              ? 'badge badge-medium' : 'badge badge-low')
+                      ">
+                </span>
             </td>
 
             <td th:text="${task.createdAt}"></td>
+            <td th:text="${task.completedAt}"></td>
 
+            <!-- Actions -->
             <td class="actions">
+                <a th:href="@{|/api/tasks/view/${task.id}|}" class="small">View</a>
                 <a th:href="@{|/api/tasks/edit/${task.id}|}" class="small">Edit</a>
                 <a th:href="@{|/api/tasks/delete/${task.id}|}"
-                   onclick="return confirm('Are you sure you want to delete this task?');" class="small">Delete</a>
+                   onclick="return confirm('Are you sure?');"
+                   class="small">Delete</a>
                 <a th:href="@{|/api/tasks/markdone/${task.id}|}" class="small">Mark Done</a>
             </td>
+
         </tr>
 
+        <!-- No Tasks -->
         <tr th:if="${#lists.isEmpty(tasks)}">
-            <td colspan="8" style="text-align:center; padding:18px;">
+            <td colspan="9" style="text-align:center; padding:18px;">
                 No tasks found. <a href="/api/tasks/add">Add your first task</a>
             </td>
         </tr>
+
         </tbody>
     </table>
+
+    <!-- Pagination -->
+    <div class="pagination" th:if="${totalPages > 1}">
+
+        <a th:if="${currentPage > 0}"
+           th:href="@{|/api/tasks?page=${currentPage - 1}&size=${size}|}"
+           class="btn">Previous</a>
+
+        <span th:text="'Page ' + ${currentPage + 1} + ' of ' + ${totalPages}"></span>
+
+        <a th:if="${currentPage < totalPages - 1}"
+           th:href="@{|/api/tasks?page=${currentPage + 1}&size=${size}|}"
+           class="btn">Next</a>
+
+    </div>
+
 </div>
 
 <footer class="footer">

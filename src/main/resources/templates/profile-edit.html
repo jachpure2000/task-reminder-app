@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Profile</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+
+  <h2>Edit Profile</h2>
+
+  <!-- Edit Profile Form -->
+  <form th:action="@{/profile/update}"
+        th:object="${profile}"
+        method="post"
+        enctype="multipart/form-data">
+
+    <!-- Show Current Profile Picture -->
+    <div style="text-align:center; margin-bottom:20px;">
+      <img th:if="${profile.profileImage != null}"
+           th:src="@{'/profile/image/' + ${profile.profileImage}}"
+           alt="Profile Picture"
+           style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #ccc;">
+
+      <img th:if="${profile.profileImage == null}"
+           src="/images/default-user.png"
+           alt="Default Image"
+           style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #ccc;">
+    </div>
+
+    <!-- Name -->
+    <label>Name:</label>
+    <input type="text" th:field="*{name}" required>
+
+    <!-- Email -->
+    <label>Email:</label>
+    <input type="email" th:field="*{email}" required>
+
+    <!-- Profile Image Upload -->
+    <label>Upload Profile Picture:</label>
+    <input type="file" name="profileImage" accept="image/*">
+
+    <button type="submit" class="btn btn-primary" style="margin-top:12px;">
+      Save Changes
+    </button>
+  </form>
+
+  <br>
+  <a href="/profile" class="btn">Back</a>
+
+</div>
+
+<footer class="footer">
+  <div>Task Reminder App © 2025 — Created by Student</div>
+</footer>
+
+</body>
+</html>

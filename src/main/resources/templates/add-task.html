@@ -35,10 +35,11 @@
 
         <div class="form-row">
             <label>Due Date:</label>
-            <input type="date"
+            <input type="datetime-local"
                    th:field="*{dueDate}"
                    required
-                   th:attr="min=${#dates.format(#dates.createNow(),'yyyy-MM-dd')}" />
+                   th:attr="min=${#dates.format(#dates.createNow(),'yyyy-MM-dd''T''HH:mm')}" />
+
         </div>
 
 
@@ -48,7 +49,7 @@
                 <option value="">-- Select --</option>
                 <option th:each="s : ${T(com.taskreminder.app.enums.TaskStatus).values()}"
                         th:value="${s}"
-                        th:text="${s}">
+                        th:text="${#strings.capitalize(s.toString().toLowerCase())}">
                 </option>
             </select>
         </div>
@@ -60,10 +61,11 @@
                 <option value="">-- Select --</option>
                 <option th:each="p : ${T(com.taskreminder.app.enums.TaskPriority).values()}"
                         th:value="${p}"
-                        th:text="${p}">
+                        th:text="${#strings.capitalize(p.toString().toLowerCase())}">
                 </option>
             </select>
         </div>
+
 
         <div style="margin-top:12px;">
             <button type="submit" class="btn btn-primary">Save Task</button>
